@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
+
+# Env
+env/
+venv/
+.benv/
+blogenv/
+*.env
+
+# VSCode
+.vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Django specific
+media/
+staticfiles/
+db.sqlite3
+
+# Migrations
+*/migrations/__pycache__/
+*/migrations/*.py
+
+# Pyenv or virtualenv
+.Python
+pip-log.txt
+
+# IDEs
+.idea/
