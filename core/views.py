@@ -14,11 +14,12 @@ class RegisterView(generics.CreateAPIView):
 def profile_view(request):
     user = request.user
     if request.method == 'GET':
-        serializer = UserProfileSerializer(user)
+        serializer = UserProfileSerializer(user, context={'request': request})
         return Response(serializer.data)
     elif request.method in ['PUT', 'PATCH']:
-        serializer = UserProfileSerializer(user, data=request.data, partial=True)
+        serializer = UserProfileSerializer(user, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
+
