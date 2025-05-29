@@ -4,9 +4,16 @@ from core.models import User
 from django.conf import settings
 
 class UserShortSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['id', 'username', 'bio', 'profile_image']
+
+    def get_profile_image(self, obj):
+        if obj.profile_image:
+            return obj.profile_image.url
+        return settings.STATIC_URL + 'img/defaultuser.png'
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,7 +34,7 @@ class PostSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     tags = TagSerializer(many=True)
     is_owner = serializers.SerializerMethodField()
-    image = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, allow_null=True)
     reading_time = serializers.SerializerMethodField()
 
     class Meta:
@@ -69,10 +76,13 @@ class PostSerializer(serializers.ModelSerializer):
             return obj.likes.filter(id=request.user.id).exists()
         return False
     
-    def get_image(self, obj):
-        if obj.image:
-            return obj.image.url
-        return settings.STATIC_URL + 'img/defaultpost.png'
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.image:
+            rep['image'] = instance.image.url
+        else:
+            rep['image'] = settings.STATIC_URL + 'img/defaultpost.png'
+        return rep
 
 
 class PostCreateUpdateSerializer(serializers.ModelSerializer):

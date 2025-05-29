@@ -8,6 +8,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
+from .pagination import CustomPagination
+
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -23,6 +25,8 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly]
+    pagination_class = CustomPagination
+
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'content']
 
@@ -34,17 +38,35 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def perform_update(self, serializer):
+        post = self.get_object()
+        remove_image = self.request.data.get('remove_image')
+
+        if remove_image in ['true', 'True', True]:
+            if post.image:
+                post.image.delete(save=False)
+            serializer.save(image=None)
+        else:
+            serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.image:
+            instance.image.delete(save=False)
+        instance.delete()
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = None
 
 
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = None
 
 
 

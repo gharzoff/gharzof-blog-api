@@ -17,19 +17,24 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True, read_only=True)
     liked_posts = PostSerializer(many=True, read_only=True)
-    profile_image = serializers.SerializerMethodField()
     posts_count = serializers.SerializerMethodField()
+
+    profile_image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'bio', 'profile_image', 'date_joined', 'posts', 'liked_posts', 'posts_count']
 
-    def get_profile_image(self, obj):
-        if obj.profile_image:
-            return obj.profile_image.url
-        return settings.STATIC_URL + 'img/defaultuser.png'
-    
     def get_posts_count(self, obj):
         return obj.posts.count()
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        if instance.profile_image:
+            rep['profile_image'] = instance.profile_image.url
+        else:
+            rep['profile_image'] = settings.STATIC_URL + 'img/defaultuser.png'
+        return rep
+
     
     

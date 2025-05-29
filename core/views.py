@@ -33,9 +33,15 @@ def profile_view(request):
         serializer = UserProfileSerializer(user, context={'request': request})
         return Response(serializer.data)
     elif request.method in ['PUT', 'PATCH']:
+        remove_image = request.data.get('remove_image')
+        profile = request.user
         serializer = UserProfileSerializer(user, data=request.data, partial=True, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
+            if remove_image in ['true', 'True', True]:
+                profile.profile_image.delete(save=False)
+                serializer.save(profile_image=None)
+            else:
+                serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
