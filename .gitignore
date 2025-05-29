@@ -20,7 +20,7 @@ Thumbs.db
 
 # Django specific
 media/
-staticfiles/
+static/
 db.sqlite3
 
 # Migrations
