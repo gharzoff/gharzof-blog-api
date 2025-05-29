@@ -5,7 +5,7 @@ from .serializers import (
     CategorySerializer, TagSerializer
 )
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from .pagination import CustomPagination
@@ -71,7 +71,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([AllowAny])
 def add_view(request, post_id):
     try:
         post = Post.objects.get(id=post_id)
